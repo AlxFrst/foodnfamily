@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { updateOrderStatus, archiveOrder } from '../actions';
 import ArchiveConfirmationModal from './ArchiveConfirmationModal';
+import { Edit, Trash, Check, X, PlusCircle, ClipboardList, Eye, Clock, Loader } from 'lucide-react';
 
 interface MenuItem {
     id: number;
@@ -133,10 +134,24 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
             </div>
             <div className="mb-4 p-4 bg-white shadow-md rounded-lg">
                 <h2 className="text-xl font-semibold mb-2">Tableau de bord</h2>
-                <p>Total des commandes : {orderStats.totalOrders}</p>
-                <p>Commandes en attente : {orderStats.pendingOrders}</p>
-                <p>Commandes en cours : {orderStats.inProgressOrders}</p>
-                <p>Commandes terminées : {orderStats.completedOrders}</p>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center bg-gray-200 p-2 rounded-lg">
+                        <ClipboardList size={24} className="mr-2" />
+                        <span>Total des commandes : {orderStats.totalOrders}</span>
+                    </div>
+                    <div className="flex items-center bg-yellow-200 p-2 rounded-lg">
+                        <Clock size={24} className="mr-2" />
+                        <span>Commandes en attente : {orderStats.pendingOrders}</span>
+                    </div>
+                    <div className="flex items-center bg-blue-200 p-2 rounded-lg">
+                        <Loader size={24} className="mr-2" />
+                        <span>Commandes en cours : {orderStats.inProgressOrders}</span>
+                    </div>
+                    <div className="flex items-center bg-green-200 p-2 rounded-lg">
+                        <Check size={24} className="mr-2" />
+                        <span>Commandes terminées : {orderStats.completedOrders}</span>
+                    </div>
+                </div>
                 <h3 className="text-lg font-medium mt-2">Ingrédients commandés :</h3>
                 <ul className="list-disc pl-5">
                     {Object.entries(orderStats.ingredients).map(([name, quantity]) => (
@@ -165,7 +180,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                                     onClick={() => setOrderToArchive(order)}
                                     className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
                                 >
-                                    Archiver
+                                    <Trash size={16} />
                                 </button>
                             </div>
                             <details
