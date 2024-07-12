@@ -32,6 +32,45 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
     const [orderToArchive, setOrderToArchive] = useState<Order | null>(null);
     const detailsRefs = useRef<{ [key: number]: HTMLDetailsElement | null }>({});
 
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+
+    useEffect(() => {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const hostname = window.location.hostname;
+        const wsUrl = `${protocol}://${hostname}:8080`;
+
+        const ws = new WebSocket(wsUrl);
+        setSocket(ws);
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            console.log('Received message:', message);
+            if (message.type === 'NEW_ORDER') {
+                setOrders(prevOrders => [...prevOrders, message.order]);
+            } else if (message.type === 'UPDATE_ORDER_STATUS') {
+                setOrders(prevOrders => prevOrders.map(order =>
+                    order.id === message.orderId ? { ...order, status: message.newStatus } : order
+                ));
+            }
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, []);
+
     const handleStatusChange = async (orderId: number) => {
         const order = orders.find(order => order.id === orderId);
         if (!order) return;
@@ -44,6 +83,15 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
 
             if (newStatus === 'COMPLETED' && detailsRefs.current[orderId]) {
                 detailsRefs.current[orderId].open = false;
+            }
+
+            // Notify the server to broadcast the updated order status
+            if (socket) {
+                socket.send(JSON.stringify({
+                    type: 'UPDATE_ORDER_STATUS',
+                    orderId: orderId,
+                    newStatus: newStatus,
+                }));
             }
         } catch (error) {
             console.error('Erreur lors de la mise à jour du statut de la commande', error);
@@ -99,9 +147,9 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                             >
                                 <summary className="text-blue-500">Voir les détails</summary>
                                 <ul className="pl-4 mt-2 list-disc list-inside text-gray-700">
-                                    {order.items.map(item => (
+                                    {order.items?.map(item => (
                                         <li key={item.id}>{item.item.name} - Quantité: {item.quantity}</li>
-                                    ))}
+                                    )) || <li>Aucun élément de commande</li>}
                                 </ul>
                             </details>
                         </div>

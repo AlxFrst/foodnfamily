@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { createOrder } from '../actions';
 import OrderSummaryModal from './OrderSummaryModal';
-import QRCode from 'qrcode.react';
 import QRCodeModal from './QRCodeModal';
 import ShineBorder from "@/components/magicui/shine-border";
 
@@ -34,14 +33,30 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
 
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:8080');
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const hostname = window.location.hostname;
+        const wsUrl = `${protocol}://${hostname}:8080`;
+
+        const ws = new WebSocket(wsUrl);
         setSocket(ws);
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
 
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
             if (message.type === 'UPDATE_CATEGORIES') {
                 setCategories(message.categories);
             }
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
         };
 
         return () => {
@@ -91,16 +106,19 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await createOrder(menuId, userName, orderItems);
+            const newOrder = await createOrder(menuId, userName, orderItems);
             const itemsSummary = orderItems.map(orderItem => {
                 const item = categories.flatMap(category => category.items).find(i => i.id === orderItem.itemId);
                 return { name: item?.name || '', quantity: orderItem.quantity };
             });
             setOrderSummary({ userName, items: itemsSummary });
 
-            // Notify the server to broadcast the updated categories
+            // Notify the server to broadcast the new order
             if (socket) {
-                socket.send(JSON.stringify({ type: 'UPDATE_CATEGORIES', categories }));
+                socket.send(JSON.stringify({
+                    type: 'NEW_ORDER',
+                    order: newOrder,
+                }));
             }
         } catch (error) {
             console.error('Erreur lors de la création de la commande', error);
@@ -184,25 +202,25 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
                             </div>
                         </ShineBorder>
                     ))}
-                        <div className="bg-white p-6 shadow-lg rounded-2xl w-full">
-                            <label className="block text-gray-800 text-sm font-medium mb-2" htmlFor="user-name">
-                                Nom
-                            </label>
-                            <input
-                                id="user-name"
-                                type="text"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
-                            <button
-                                type="submit"
-                                className="mt-4 w-full bg-blue-500 text-white font-medium py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
-                                Passer la commande
-                            </button>
-                        </div>
+                    <div className="bg-white p-6 shadow-lg rounded-2xl w-full">
+                        <label className="block text-gray-800 text-sm font-medium mb-2" htmlFor="user-name">
+                            Nom
+                        </label>
+                        <input
+                            id="user-name"
+                            type="text"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            required
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                        <button
+                            type="submit"
+                            className="mt-4 w-full bg-blue-500 text-white font-medium py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                            Passer la commande
+                        </button>
+                    </div>
                 </form>
             )}
 
