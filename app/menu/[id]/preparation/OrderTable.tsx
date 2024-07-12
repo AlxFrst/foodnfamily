@@ -83,7 +83,6 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                 detailsRefs.current[orderId].open = false;
             }
 
-            // Notify the server to broadcast the updated order status
             if (socket) {
                 socket.send(JSON.stringify({
                     type: 'UPDATE_ORDER_STATUS',
@@ -110,9 +109,41 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
     });
 
+    const orderStats = {
+        totalOrders: orders.length,
+        pendingOrders: orders.filter(order => order.status === 'PENDING').length,
+        inProgressOrders: orders.filter(order => order.status === 'IN_PROGRESS').length,
+        completedOrders: orders.filter(order => order.status === 'COMPLETED').length,
+        ingredients: orders.filter(order => order.status !== 'COMPLETED').reduce((acc, order) => {
+            order.items.forEach(item => {
+                if (!acc[item.item.name]) {
+                    acc[item.item.name] = 0;
+                }
+                acc[item.item.name] += item.quantity;
+            });
+            return acc;
+        }, {} as { [key: string]: number })
+    };
+
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
-            <h1 className="text-2xl font-bold mb-4 text-center">Préparation des commandes</h1>
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Préparation des commandes</h1>
+                <a href={`/menu/${menuId}`} className="px-4 py-2 bg-blue-500 text-white rounded">Retour au menu</a>
+            </div>
+            <div className="mb-4 p-4 bg-white shadow-md rounded-lg">
+                <h2 className="text-xl font-semibold mb-2">Tableau de bord</h2>
+                <p>Total des commandes : {orderStats.totalOrders}</p>
+                <p>Commandes en attente : {orderStats.pendingOrders}</p>
+                <p>Commandes en cours : {orderStats.inProgressOrders}</p>
+                <p>Commandes terminées : {orderStats.completedOrders}</p>
+                <h3 className="text-lg font-medium mt-2">Ingrédients commandés :</h3>
+                <ul className="list-disc pl-5">
+                    {Object.entries(orderStats.ingredients).map(([name, quantity]) => (
+                        <li key={name}>{name}: {quantity}</li>
+                    ))}
+                </ul>
+            </div>
             <div className="overflow-x-auto">
                 <div className="grid gap-4">
                     {sortedOrders.map(order => (
