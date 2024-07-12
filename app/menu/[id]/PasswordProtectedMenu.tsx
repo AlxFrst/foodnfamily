@@ -135,18 +135,15 @@ export default function PasswordProtectedMenu({ menuId, adminPwd, menuName: init
                         <div className="flex space-x-2">
                                 <a className="bg-green-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 flex items-center" href={`/menu/${menuId}/preparation`}>
                                     <ClipboardList size={16} className="mr-2" />
-                                    Suivre les commandes
                                 </a>
                                 <a className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center" href={`/menu/${menuId}/carte`}>
                                     <Eye size={16} className="mr-2" />
-                                    Voir la carte
                                 </a>
                             <button
                                 onClick={() => setShowDeleteModal(true)}
                                 className="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 flex items-center"
                             >
                                 <Trash size={16} />
-                                <span className="ml-2">Supprimer le menu</span>
                             </button>
                         </div>
                     </div>
