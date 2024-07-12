@@ -35,9 +35,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const hostname = window.location.hostname;
-        const wsUrl = `${protocol}://${hostname}:8080`;
+        const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
 
         const ws = new WebSocket(wsUrl);
         setSocket(ws);

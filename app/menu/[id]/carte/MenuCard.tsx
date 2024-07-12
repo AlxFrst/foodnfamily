@@ -6,6 +6,7 @@ import OrderSummaryModal from './OrderSummaryModal';
 import QRCodeModal from './QRCodeModal';
 import ShineBorder from "@/components/magicui/shine-border";
 
+
 interface Category {
     id: number;
     name: string;
@@ -33,9 +34,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
 
     useEffect(() => {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const hostname = window.location.hostname;
-        const wsUrl = `${protocol}://${hostname}:8080`;
+        const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
 
         const ws = new WebSocket(wsUrl);
         setSocket(ws);
