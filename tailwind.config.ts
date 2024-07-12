@@ -59,6 +59,10 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        grid: {
+          "0%": { transform: "translateY(-50%)" },
+          "100%": { transform: "translateY(0)" },
+        },
         "shine-pulse": {
           "0%": {
             "background-position": "0% 0%",
