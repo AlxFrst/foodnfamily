@@ -19,7 +19,8 @@ export default function OrderSummaryModal({ userName, items, onClose }: OrderSum
                     ))}
                 </ul>
                 <button
-                    onClick={onClose}
+                    // on click reload the page
+                    onClick={() => window.location.reload()}
                     className="mt-6 w-full bg-blue-500 text-white font-medium py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                     Nouvelle commande
