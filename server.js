@@ -1,4 +1,3 @@
-// server.js
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 8080 });
@@ -18,6 +17,12 @@ wss.on('connection', (ws) => {
                 type: 'UPDATE_ORDER_STATUS',
                 orderId: parsedMessage.orderId,
                 newStatus: parsedMessage.newStatus,
+            }));
+        } else if (parsedMessage.type === 'UPDATE_STOCK') { // Ajout de la gestion des mises à jour de stock
+            broadcast(JSON.stringify({
+                type: 'UPDATE_STOCK',
+                itemId: parsedMessage.itemId,
+                newStock: parsedMessage.newStock,
             }));
         }
     });
