@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Menu {
+  id         Int         @id @default(autoincrement())
+  name       String      @default("Menu")
+  adminPwd   String   
+  categories Category[]
+  orders     Order[]
+}
+
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  menu     Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuId   Int
+  items    MenuItem[]
+}
+
+model MenuItem {
+  id         Int         @id @default(autoincrement())
+  name       String
+  stock      Int
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int
+  orderItems OrderItem[]
+}
+
+model Order {
+  id         Int          @id @default(autoincrement())
+  userName   String
+  menu       Menu         @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuId     Int
+  items      OrderItem[]
+  status     String       @default("PENDING")
+  createdAt  DateTime     @default(now())
+}
+
+model OrderItem {
+  id        Int       @id @default(autoincrement())
+  quantity  Int
+  item      MenuItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId    Int
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   Int
+}
