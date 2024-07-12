@@ -184,10 +184,6 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
                             </div>
                         </ShineBorder>
                     ))}
-                    <ShineBorder
-                        className="relative flex flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl w-full p-4"
-                            color={["#667db6", "#0082c8", "#667db6"]}
-                    >
                         <div className="bg-white p-6 shadow-lg rounded-2xl w-full">
                             <label className="block text-gray-800 text-sm font-medium mb-2" htmlFor="user-name">
                                 Nom
@@ -207,7 +203,6 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
                                 Passer la commande
                             </button>
                         </div>
-                    </ShineBorder>
                 </form>
             )}
 
