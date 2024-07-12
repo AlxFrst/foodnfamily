@@ -48,6 +48,16 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
             if (message.type === 'UPDATE_CATEGORIES') {
                 setCategories(message.categories);
             }
+            if (message.type === 'UPDATE_STOCK') {
+                // Update stock number of each item
+                setCategories(prevCategories => prevCategories.map(category => ({
+                    ...category,
+                    items: category.items.map(item => {
+                        const updatedItem = message.items.find(i => i.id === item.id);
+                        return updatedItem ? { ...item, stock: updatedItem.stock } : item;
+                    })
+                })));
+            }
         };
 
         ws.onclose = () => {
