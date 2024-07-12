@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createOrder } from '../actions';
 import OrderSummaryModal from './OrderSummaryModal';
+import QRCode from 'qrcode.react';
+import QRCodeModal from './QRCodeModal';
 
 interface Category {
     id: number;
@@ -28,6 +30,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const [orderSummary, setOrderSummary] = useState<{ userName: string; items: { name: string; quantity: number }[] } | null>(null);
     const [categories, setCategories] = useState<Category[]>(initialCategories);
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8080');
@@ -110,9 +113,27 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
         setOrderSummary(null);
     };
 
+    const handleQRCodeClick = () => {
+        setIsQRCodeModalOpen(true);
+    };
+
+    const handleQRCodeModalClose = () => {
+        setIsQRCodeModalOpen(false);
+    };
+
     return (
-        <div className="p-4 bg-gray-50 min-h-screen">
+        <div className="relative p-4 bg-gray-50 min-h-screen">
+            <button
+                onClick={handleQRCodeClick}
+                className="absolute top-4 right-4 bg-gray-200 p-2 rounded-full shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h3v3H3V3zm0 8h3v3H3v-3zm0 8h3v3H3v-3zm8-16h3v3h-3V3zm0 8h3v3h-3v-3zm0 8h3v3h-3v-3zm8-16h3v3h-3V3zm0 8h3v3h-3v-3zm0 8h3v3h-3v-3z" />
+                </svg>
+            </button>
+
             <h1 className="text-3xl font-bold mb-6 text-center">{menuName}</h1>
+
             {categories.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                     <p className="text-gray-500 text-xl">Le menu ne contient pas encore de catégories ou de plats.</p>
@@ -184,6 +205,10 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
                     items={orderSummary.items}
                     onClose={handleNewOrder}
                 />
+            )}
+
+            {isQRCodeModalOpen && (
+                <QRCodeModal url={window.location.href} onClose={handleQRCodeModalClose} />
             )}
         </div>
     );
