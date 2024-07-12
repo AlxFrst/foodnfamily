@@ -96,6 +96,13 @@ export async function createOrder(menuId: number, userName: string, items: { ite
                 },
             },
         });
+        // remove items from stock
+        for (const item of items) {
+            await prisma.menuItem.update({
+                where: { id: item.itemId },
+                data: { stock: { decrement: item.quantity } },
+            });
+        }
         return order;
     } catch (error) {
         console.error('Erreur lors de la création de la commande', error);
