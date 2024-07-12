@@ -30,7 +30,7 @@ export default function MenuItemForm({ categories, onMenuItemAdded }: MenuItemFo
         <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white shadow-md rounded-xl">
             <div className="space-y-2">
                 <label className="block text-gray-800 text-sm font-medium" htmlFor="item-name">
-                    Nom du plat
+                    Nom
                 </label>
                 <input
                     id="item-name"
@@ -75,7 +75,7 @@ export default function MenuItemForm({ categories, onMenuItemAdded }: MenuItemFo
                 type="submit"
                 className="w-full bg-blue-500 text-white font-medium py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-                Ajouter le plat
+                Ajouter
             </button>
         </form>
 
