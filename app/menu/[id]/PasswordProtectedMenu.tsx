@@ -91,7 +91,7 @@ export default function PasswordProtectedMenu({ menuId, adminPwd, menuName: init
     };
 
     return (
-        <div className="relative">
+        <div className="relative p-4 max-w-md mx-auto">
             {!isAuthenticated && <PasswordModal onSubmit={handlePasswordSubmit} />}
             <div className={`p-4 ${!isAuthenticated ? 'blur-sm' : ''}`}>
                 <div className="mb-4 flex justify-between items-center">
@@ -216,6 +216,5 @@ export default function PasswordProtectedMenu({ menuId, adminPwd, menuName: init
                 </div>
             )}
         </div>
-
     );
 }

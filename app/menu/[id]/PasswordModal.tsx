@@ -17,7 +17,10 @@ export default function PasswordModal({ onSubmit }: PasswordModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-                <h2 className="text-xl font-semibold mb-4">Entrez le mot de passe</h2>
+                <h2 className="text-xl font-semibold mb-4">Votre menu est créé !</h2>
+                <p className="text-gray-700 mb-4">
+                    Vous pouvez maintenant vous y connecter avec le mot de passe que vous avez choisi lors de la création du menu.
+                </p>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
