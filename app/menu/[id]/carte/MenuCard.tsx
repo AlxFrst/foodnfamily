@@ -195,6 +195,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
                                                     +
                                                 </button>
                                             </div>
+                                            <p className="text-gray-500 text-sm mt-2">Stock: {item.stock}</p>
                                         </div>
                                     ))}
                                 </div>
