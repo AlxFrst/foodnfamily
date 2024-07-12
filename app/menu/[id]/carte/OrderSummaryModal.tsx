@@ -17,14 +17,13 @@ export default function OrderSummaryModal({ userName, items, onClose }: OrderSum
                     <h2 className="text-2xl font-semibold mb-4 text-center">Récapitulatif de la commande</h2>
                 </BoxReveal>
                 <BoxReveal boxColor={"#5046e6"} duration={0.5}>
-                    <p className="text-lg text-gray-700 mb-4">Nom du client : <span className="font-semibold">{userName}</span></p>
+                    <p className="text-lg text-gray-700 mb-4">Votre nom : <span className="font-semibold">{userName}</span></p>
                 </BoxReveal>
                 <ul className="space-y-2 w-full">
                     {items.map((item, index) => (
                         <BoxReveal key={index} boxColor={"#f0f0f0"} duration={0.5}>
                             <li className="bg-gray-100 p-3 rounded-lg shadow-sm flex justify-between">
-                                <span>{item.name}</span>
-                                <span className="font-semibold">Quantité: {item.quantity}</span>
+                                <span>{item.name} - {item.quantity}</span>
                             </li>
                         </BoxReveal>
                     ))}
