@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Edit, Trash, Check, X, PlusCircle } from 'lucide-react';
 import PasswordModal from './PasswordModal';
 import CategoryForm from './CategoryForm';
 import MenuItemForm from './MenuItemForm';
@@ -91,107 +92,115 @@ export default function PasswordProtectedMenu({ menuId, adminPwd, menuName: init
     };
 
     return (
-        <div className="relative p-4 max-w-md mx-auto">
+        <div className="relative min-h-screen bg-gray-100">
             {!isAuthenticated && <PasswordModal onSubmit={handlePasswordSubmit} />}
             <div className={`p-4 ${!isAuthenticated ? 'blur-sm' : ''}`}>
-                <div className="mb-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">
-                        {isEditingName ? (
-                            <div className="flex items-center">
-                                <input
-                                    type="text"
-                                    value={menuName}
-                                    onChange={(e) => setMenuName(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                />
-                                <button
-                                    onClick={handleMenuNameChange}
-                                    className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                >
-                                    Sauvegarder
-                                </button>
-                                <button
-                                    onClick={() => setIsEditingName(false)}
-                                    className="bg-gray-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                >
-                                    Annuler
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex items-center">
-                                <span>{menuName}</span>
-                                <button
-                                    onClick={() => setIsEditingName(true)}
-                                    className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                >
-                                    Modifier
-                                </button>
-                            </div>
-                        )}
-                    </h1>
-                    <button
-                        onClick={() => setShowDeleteModal(true)}
-                        className="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                    >
-                        Supprimer le menu
-                    </button>
-                </div>
-                {isAuthenticated && (
-                    <>
-                        <CategoryForm menuId={menuId} onCategoryAdded={handleCategoryAdded} />
-                        <MenuItemForm categories={categories} onMenuItemAdded={handleMenuItemAdded} />
-                        {categories.map(category => (
-                            <div key={category.id} className="mb-4 relative">
-                                <h2 className="text-xl font-semibold">{category.name}</h2>
-                                <button
-                                    onClick={() => handleCategoryDelete(category.id)}
-                                    className="bg-red-500 text-white font-medium py-1 px-2 rounded-lg absolute top-0 right-0 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {category.items.map(item => (
-                                        <div key={item.id} className="bg-white shadow-md rounded-lg p-4 relative">
-                                            <h3 className="text-lg font-semibold">{item.name}</h3>
-                                            <div className="mt-2">
-                                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor={`stock-${item.id}`}>
-                                                    Stock
-                                                </label>
-                                                <input
-                                                    id={`stock-${item.id}`}
-                                                    type="number"
-                                                    value={item.stock}
-                                                    onChange={(e) => handleMenuItemStockUpdate(item.id, category.id, parseInt(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                />
-                                            </div>
-                                            <div className="absolute top-2 right-2 flex space-x-2">
-                                                <button
-                                                    onClick={() => handleMenuItemDelete(item.id, category.id)}
-                                                    className="bg-red-500 text-white font-medium py-1 px-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleMenuItemStockUpdate(item.id, category.id, item.stock)}
-                                                    className="bg-blue-500 text-white font-medium py-1 px-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
+                    <div className="container mx-auto p-4 flex justify-between items-center">
+                        <h1 className="text-2xl font-bold">
+                            {isEditingName ? (
+                                <div className="flex items-center">
+                                    <input
+                                        type="text"
+                                        value={menuName}
+                                        onChange={(e) => setMenuName(e.target.value)}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    />
+                                    <button
+                                        onClick={handleMenuNameChange}
+                                        className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    >
+                                        <Check size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditingName(false)}
+                                        className="bg-gray-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    >
+                                        <X size={16} />
+                                    </button>
                                 </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <span>{menuName}</span>
+                                    <button
+                                        onClick={() => setIsEditingName(true)}
+                                        className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg ml-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    >
+                                        <Edit size={16} />
+                                    </button>
+                                </div>
+                            )}
+                        </h1>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        >
+                            <Trash size={16} />
+                        </button>
+                    </div>
+                </header>
+                <main className="pt-20 container mx-auto">
+                    {isAuthenticated && (
+                        <>
+                            <div className="my-4">
+                                <CategoryForm menuId={menuId} onCategoryAdded={handleCategoryAdded} />
                             </div>
-                        ))}
-                    </>
-                )}
+                            <div className="my-4">
+                                <MenuItemForm categories={categories} onMenuItemAdded={handleMenuItemAdded} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {categories.map(category => (
+                                    <div key={category.id} className="bg-white shadow-md rounded-lg p-4">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="text-xl font-semibold">{category.name}</h2>
+                                            <button
+                                                onClick={() => handleCategoryDelete(category.id)}
+                                                className="bg-red-500 text-white font-medium py-1 px-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                            >
+                                                <Trash size={16} />
+                                            </button>
+                                        </div>
+                                        <div className="space-y-4">
+                                            {category.items.map(item => (
+                                                <div key={item.id} className="bg-gray-50 p-4 rounded-lg shadow-sm flex justify-between items-center">
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold">{item.name}</h3>
+                                                        <div className="mt-2">
+                                                            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor={`stock-${item.id}`}>
+                                                                Stock
+                                                            </label>
+                                                            <input
+                                                                id={`stock-${item.id}`}
+                                                                type="number"
+                                                                value={item.stock}
+                                                                onChange={(e) => handleMenuItemStockUpdate(item.id, category.id, parseInt(e.target.value))}
+                                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => handleMenuItemDelete(item.id, category.id)}
+                                                            className="bg-red-500 text-white font-medium py-1 px-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                                        >
+                                                            <Trash size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleMenuItemStockUpdate(item.id, category.id, item.stock)}
+                                                            className="bg-blue-500 text-white font-medium py-1 px-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                        >
+                                                            <Check size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </main>
             </div>
             {showDeleteModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

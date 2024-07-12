@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 interface PasswordModalProps {
     onSubmit: (password: string) => void;
 }
@@ -35,7 +35,11 @@ export default function PasswordModal({ onSubmit }: PasswordModalProps) {
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         />
                     </div>
+                    {/* Bouton de retour on click go on home page */}
                     <div className="flex justify-end">
+                    <a href="/" className="bg-yellow-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                        Retour
+                    </a>
                         <button
                             type="submit"
                             className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

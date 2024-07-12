@@ -53,7 +53,7 @@ export default function CreateMenuModal() {
                                             <input
                                                 id="menu-name"
                                                 type="text"
-                                                placeholder="Entrer un nom de menu"
+                                                placeholder="'Anniversaire', 'Noël', 'Fête'..."
                                                 className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 value={menuName}
                                                 onChange={(e) => setMenuName(e.target.value)}
@@ -73,6 +73,9 @@ export default function CreateMenuModal() {
                                                 onChange={(e) => setAdminPwd(e.target.value)}
                                                 required
                                             />
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                Le mot de passe sera utilisé pour vous connecter à votre menu, ne l'oubliez pas, il ne peut pas être récupéré.
+                                            </p>
                                         </div>
                                         <div className="flex items-center justify-end">
                                             <button
