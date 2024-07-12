@@ -6,6 +6,7 @@ import OrderSummaryModal from './OrderSummaryModal';
 import QRCodeModal from './QRCodeModal';
 import ShineBorder from "@/components/magicui/shine-border";
 
+
 interface Category {
     id: number;
     name: string;
@@ -33,7 +34,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
 
     useEffect(() => {
-        const wsUrl = 'wss://ws-foodnfamily.alxfrst.fr'; // Correction de wsUrl pour utiliser wss
+        const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
 
         const ws = new WebSocket(wsUrl);
         setSocket(ws);
@@ -46,14 +47,6 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
             const message = JSON.parse(event.data);
             if (message.type === 'UPDATE_CATEGORIES') {
                 setCategories(message.categories);
-            } else if (message.type === 'UPDATE_STOCK') { // Ajout de la gestion des mises à jour de stock
-                const updatedCategories = categories.map(category => ({
-                    ...category,
-                    items: category.items.map(item =>
-                        item.id === message.itemId ? { ...item, stock: message.newStock } : item
-                    ),
-                }));
-                setCategories(updatedCategories);
             }
         };
 
@@ -68,7 +61,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
         return () => {
             ws.close();
         };
-    }, [categories]);
+    }, []);
 
     const handleQuantityChange = (itemId: number, quantity: number) => {
         setOrderItems(prevItems => {
