@@ -43,7 +43,7 @@ export default function PasswordProtectedMenu({ menuId, adminPwd, menuName: init
 
     const handlePasswordSubmit = (enteredPwd: string) => {
         if (enteredPwd === adminPwd) {
-            Cookies.set(`menu_${menuId}_pwd`, enteredPwd, { expires: 1 }); // Expire in 1 day
+            Cookies.set(`menu_${menuId}_pwd`, enteredPwd, { expires: 30 }); // Expire in 30 days
             setIsAuthenticated(true);
         } else {
             alert('Mot de passe incorrect');
