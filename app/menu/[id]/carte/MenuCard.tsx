@@ -110,33 +110,33 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     };
 
     const handleConfetti = () => {
-        const scalar = 2;
-        const unicorn = confetti.shapeFromText({ text: "🦄", scalar });
+        const scalar = 3; // Augmentez le scalar pour des emojis plus grands
+        const burger = confetti.shapeFromText({ text: "🍔", scalar });
 
         const defaults = {
             spread: 360,
-            ticks: 60,
-            gravity: 0,
-            decay: 0.96,
-            startVelocity: 20,
-            shapes: [unicorn],
+            ticks: 100, // Augmentez le ticks pour que les confettis durent plus longtemps
+            gravity: 0.5,
+            decay: 0.94,
+            startVelocity: 30,
+            shapes: [burger],
             scalar,
         };
 
         const shoot = () => {
             confetti({
                 ...defaults,
-                particleCount: 30,
+                particleCount: 50,
             });
 
             confetti({
                 ...defaults,
-                particleCount: 5,
+                particleCount: 10,
             });
 
             confetti({
                 ...defaults,
-                particleCount: 15,
+                particleCount: 20,
                 scalar: scalar / 2,
                 shapes: ["circle"],
             });
@@ -146,6 +146,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
         setTimeout(shoot, 100);
         setTimeout(shoot, 200);
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
