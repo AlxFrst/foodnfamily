@@ -1,7 +1,6 @@
 'use server';
 
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from "@/lib/db";
 const WebSocket = require('ws');
 
 // Connect to WebSocket server
