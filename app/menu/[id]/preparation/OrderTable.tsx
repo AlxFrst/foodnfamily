@@ -28,9 +28,10 @@ interface Order {
 interface OrderTableProps {
     menuId: number;
     orders: Order[];
+    socketUrl: string;
 }
 
-export default function OrderTable({ menuId, orders: initialOrders }: OrderTableProps) {
+export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: OrderTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders.filter(order => order.status !== 'ARCHIVED'));
     const [orderToArchive, setOrderToArchive] = useState<Order | null>(null);
     const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null);
@@ -39,7 +40,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
+        const wsUrl = socketUrl;
         const ws = new WebSocket(wsUrl);
         setSocket(ws);
 

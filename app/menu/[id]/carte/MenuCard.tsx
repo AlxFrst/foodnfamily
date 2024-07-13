@@ -24,9 +24,10 @@ interface MenuCardProps {
     menuId: number;
     menuName: string;
     categories: Category[];
+    socketUrl: string;
 }
 
-export default function MenuCard({ menuId, menuName, categories: initialCategories }: MenuCardProps) {
+export default function MenuCard({ menuId, menuName, categories: initialCategoriesn, socketUrl }: MenuCardProps) {
     const [userName, setUserName] = useState('');
     const [orderItems, setOrderItems] = useState<{ itemId: number; quantity: number }[]>([]);
     const [orderSummary, setOrderSummary] = useState<{ userName: string; items: { name: string; quantity: number }[] } | null>(null);
@@ -36,7 +37,7 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
     const [isOrderValid, setIsOrderValid] = useState(false);
 
     useEffect(() => {
-        const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
+        const wsUrl = socketUrl;
 
         const ws = new WebSocket(wsUrl);
         setSocket(ws);

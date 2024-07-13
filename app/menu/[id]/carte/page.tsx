@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import MenuCard from './MenuCard';
 
+
+
 const prisma = new PrismaClient();
 
 interface MenuPageProps {
@@ -24,5 +26,5 @@ export default async function CartePage({ params }: MenuPageProps) {
         notFound();
     }
 
-    return <MenuCard menuId={menu.id} menuName={menu.name} categories={menu.categories} />;
+    return <MenuCard menuId={menu.id} menuName={menu.name} categories={menu.categories} socketUrl={process.env.WEBSOCKET_URL || 'http//localhost:8080'} />;
 }

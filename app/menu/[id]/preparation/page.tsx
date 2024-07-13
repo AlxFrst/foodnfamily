@@ -41,5 +41,5 @@ export default async function PreparationPage({ params }: PreparationPageProps) 
         })),
     }));
 
-    return <OrderTable menuId={menu.id} orders={orders} />;
+    return <OrderTable menuId={menu.id} orders={orders}, socketUrl={process.env.WEBSOCKET_URL || 'http//localhost:8080'} />;
 }
