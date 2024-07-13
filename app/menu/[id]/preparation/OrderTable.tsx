@@ -121,7 +121,9 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         }, {} as { [key: string]: number })
     };
 
-    const completionPercentage = orderStats.totalOrders === 0 ? 0 : (orderStats.completedOrders / orderStats.totalOrders) * 100;
+    let completionPercentage = orderStats.totalOrders === 0 ? 0 : (orderStats.completedOrders / orderStats.totalOrders) * 100;
+    // make the number with no decimal point
+    completionPercentage = Math.round(completionPercentage * 100) / 100;
 
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
