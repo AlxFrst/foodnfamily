@@ -33,24 +33,19 @@ interface OrderTableProps {
 export default function OrderTable({ menuId, orders: initialOrders }: OrderTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders.filter(order => order.status !== 'ARCHIVED'));
     const [orderToArchive, setOrderToArchive] = useState<Order | null>(null);
-    const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null); // New state for confirmation
+    const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null);
     const detailsRefs = useRef<{ [key: number]: HTMLDetailsElement | null }>({});
-
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const wsUrl = 'https://ws-foodnfamily.alxfrst.fr';
-
         const ws = new WebSocket(wsUrl);
         setSocket(ws);
 
-        ws.onopen = () => {
-            console.log('Connected to WebSocket server');
-        };
-
+        ws.onopen = () => console.log('Connected to WebSocket server');
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            console.log('Received message:', message);
             if (message.type === 'NEW_ORDER') {
                 setOrders(prevOrders => [...prevOrders, message.order]);
             } else if (message.type === 'UPDATE_ORDER_STATUS') {
@@ -59,36 +54,24 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                 ));
             }
         };
+        ws.onclose = () => console.log('WebSocket connection closed');
+        ws.onerror = (error) => console.error('WebSocket error:', error);
 
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
-
-        return () => {
-            ws.close();
-        };
+        return () => ws.close();
     }, []);
 
     const handleStatusChange = async (orderId: number, newStatus: string) => {
         try {
             const updatedOrder = await updateOrderStatus(orderId, newStatus);
             setOrders(orders.map(o => o.id === orderId ? { ...o, status: updatedOrder.status } : o));
-
             if (newStatus === 'COMPLETED' && detailsRefs.current[orderId]) {
                 detailsRefs.current[orderId].open = false;
             }
-
-            if (socket) {
-                socket.send(JSON.stringify({
-                    type: 'UPDATE_ORDER_STATUS',
-                    orderId: orderId,
-                    newStatus: newStatus,
-                }));
-            }
+            socket?.send(JSON.stringify({
+                type: 'UPDATE_ORDER_STATUS',
+                orderId: orderId,
+                newStatus: newStatus,
+            }));
         } catch (error) {
             console.error('Erreur lors de la mise à jour du statut de la commande', error);
         }
@@ -114,10 +97,16 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         setOrderToConfirm(null);
     };
 
-    const sortedOrders = orders.slice().sort((a, b) => {
-        const statusOrder = { 'IN_PROGRESS': 1, 'PENDING': 2, 'COMPLETED': 3 };
-        return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
-    });
+    const filteredOrders = orders.filter(order =>
+        order.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.items.some(item => item.item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    const groupedOrders = {
+        PENDING: filteredOrders.filter(order => order.status === 'PENDING'),
+        IN_PROGRESS: filteredOrders.filter(order => order.status === 'IN_PROGRESS'),
+        COMPLETED: filteredOrders.filter(order => order.status === 'COMPLETED')
+    };
 
     const orderStats = {
         totalOrders: orders.length,
@@ -126,10 +115,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         completedOrders: orders.filter(order => order.status === 'COMPLETED').length,
         ingredients: orders.filter(order => order.status !== 'COMPLETED').reduce((acc, order) => {
             order.items.forEach(item => {
-                if (!acc[item.item.name]) {
-                    acc[item.item.name] = 0;
-                }
-                acc[item.item.name] += item.quantity;
+                acc[item.item.name] = (acc[item.item.name] || 0) + item.quantity;
             });
             return acc;
         }, {} as { [key: string]: number })
@@ -179,52 +165,70 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                     ))}
                 </ul>
             </div>
+            <div className="flex justify-between mb-4">
+                <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="p-2 border rounded w-full mr-2"
+                />
+            </div>
             <div className="overflow-x-auto">
-                <div className="grid gap-4">
-                    {sortedOrders.map(order => (
-                        <div key={order.id} className="bg-white shadow-md rounded-lg p-4">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-lg font-semibold">{order.userName}</h2>
-                                    <button
-                                        onClick={() => {
-                                            if (order.status === 'COMPLETED') {
-                                                setOrderToConfirm(order);
-                                            } else {
-                                                handleStatusChange(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED');
-                                            }
+                {Object.entries(groupedOrders).map(([status, orders]) => (
+                    <div key={status} className="mb-6">
+                        <h2 className={`text-lg font-semibold mb-2 ${status === 'PENDING' ? 'text-yellow-500' :
+                            status === 'IN_PROGRESS' ? 'text-blue-500' : 'text-green-500'}`}>
+                            {status === 'PENDING' ? 'Commandes en attente' :
+                                status === 'IN_PROGRESS' ? 'Commandes en cours' : 'Commandes terminées'}
+                        </h2>
+                        <div className="grid gap-4">
+                            {orders.map(order => (
+                                <div key={order.id} className="bg-white shadow-md rounded-lg p-4">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h3 className="text-lg font-semibold">{order.userName}</h3>
+                                            <button
+                                                onClick={() => {
+                                                    if (order.status === 'COMPLETED') {
+                                                        setOrderToConfirm(order);
+                                                    } else {
+                                                        handleStatusChange(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED');
+                                                    }
+                                                }}
+                                                className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
+                                                    order.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-green-500'
+                                                    } text-white text-sm`}
+                                            >
+                                                {order.status === 'PENDING' ? 'En attente' :
+                                                    order.status === 'IN_PROGRESS' ? 'En cours' : 'Terminé'}
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={() => setOrderToArchive(order)}
+                                            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                                        >
+                                            <Trash size={16} />
+                                        </button>
+                                    </div>
+                                    <details
+                                        ref={(el) => {
+                                            if (el) detailsRefs.current[order.id] = el;
                                         }}
-                                        className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
-                                            order.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-green-500'
-                                            } text-white text-sm`}
+                                        className="mt-2 cursor-pointer"
                                     >
-                                        {order.status === 'PENDING' ? 'En attente' :
-                                            order.status === 'IN_PROGRESS' ? 'En cours' : 'Terminé'}
-                                    </button>
+                                        <summary className="text-blue-500">Voir les détails</summary>
+                                        <ul className="pl-4 mt-2 list-disc list-inside text-gray-700">
+                                            {order.items?.map(item => (
+                                                <li key={item.id}>{item.item.name} - Quantité: {item.quantity}</li>
+                                            )) || <li>Aucun élément de commande</li>}
+                                        </ul>
+                                    </details>
                                 </div>
-                                <button
-                                    onClick={() => setOrderToArchive(order)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
-                                >
-                                    <Trash size={16} />
-                                </button>
-                            </div>
-                            <details
-                                ref={(el) => {
-                                    if (el) detailsRefs.current[order.id] = el;
-                                }}
-                                className="mt-2 cursor-pointer"
-                            >
-                                <summary className="text-blue-500">Voir les détails</summary>
-                                <ul className="pl-4 mt-2 list-disc list-inside text-gray-700">
-                                    {order.items?.map(item => (
-                                        <li key={item.id}>{item.item.name} - Quantité: {item.quantity}</li>
-                                    )) || <li>Aucun élément de commande</li>}
-                                </ul>
-                            </details>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
             </div>
             {orderToArchive && (
                 <ArchiveConfirmationModal
