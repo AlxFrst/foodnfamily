@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { updateOrderStatus, archiveOrder } from '../actions';
 import ArchiveConfirmationModal from './ArchiveConfirmationModal';
 import { Edit, Trash, Check, X, PlusCircle, ClipboardList, Eye, Clock, Loader } from 'lucide-react';
+import AnimatedCircularProgressBar from "@/components/magicui/animated-circular-progress-bar";
 
 interface MenuItem {
     id: number;
@@ -126,6 +127,8 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         }, {} as { [key: string]: number })
     };
 
+    const completionPercentage = orderStats.totalOrders === 0 ? 0 : (orderStats.completedOrders / orderStats.totalOrders) * 100;
+
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-4">
@@ -150,6 +153,15 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                     <div className="flex items-center bg-green-200 p-2 rounded-lg">
                         <Check size={24} className="mr-2" />
                         <span>Commandes terminées : {orderStats.completedOrders}</span>
+                    </div>
+                    <div className="flex items-center justify-center col-span-2">
+                        <AnimatedCircularProgressBar
+                            max={100}
+                            min={0}
+                            value={completionPercentage}
+                            gaugePrimaryColor="rgb(79 70 229)"
+                            gaugeSecondaryColor="rgba(0, 0, 0, 0.1)"
+                        />
                     </div>
                 </div>
                 <h3 className="text-lg font-medium mt-2">Ingrédients commandés :</h3>
