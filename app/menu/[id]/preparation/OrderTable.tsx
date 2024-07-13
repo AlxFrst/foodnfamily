@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { updateOrderStatus, archiveOrder } from '../actions';
 import ArchiveConfirmationModal from './ArchiveConfirmationModal';
+import ConfirmationModal from './ConfirmationModal';
 import { Edit, Trash, Check, X, PlusCircle, ClipboardList, Eye, Clock, Loader } from 'lucide-react';
 import AnimatedCircularProgressBar from "@/components/magicui/animated-circular-progress-bar";
 
@@ -32,6 +33,7 @@ interface OrderTableProps {
 export default function OrderTable({ menuId, orders: initialOrders }: OrderTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders.filter(order => order.status !== 'ARCHIVED'));
     const [orderToArchive, setOrderToArchive] = useState<Order | null>(null);
+    const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null); // New state for confirmation
     const detailsRefs = useRef<{ [key: number]: HTMLDetailsElement | null }>({});
 
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -77,6 +79,11 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
 
         const newStatus = order.status === 'PENDING' ? 'IN_PROGRESS' : order.status === 'IN_PROGRESS' ? 'COMPLETED' : 'PENDING';
 
+        if (order.status === 'COMPLETED' && newStatus === 'PENDING') {
+            setOrderToConfirm(order);
+            return;
+        }
+
         try {
             const updatedOrder = await updateOrderStatus(orderId, newStatus);
             setOrders(orders.map(o => o.id === orderId ? { ...o, status: updatedOrder.status } : o));
@@ -104,6 +111,17 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         } catch (error) {
             console.error('Erreur lors de l\'archivage de la commande', error);
         }
+    };
+
+    const handleConfirm = async () => {
+        if (orderToConfirm) {
+            await handleStatusChange(orderToConfirm.id);
+            setOrderToConfirm(null);
+        }
+    };
+
+    const handleCancel = () => {
+        setOrderToConfirm(null);
     };
 
     const sortedOrders = orders.slice().sort((a, b) => {
@@ -220,6 +238,13 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                         setOrderToArchive(null);
                     }}
                     onCancel={() => setOrderToArchive(null)}
+                />
+            )}
+            {orderToConfirm && (
+                <ConfirmationModal
+                    message="Voulez-vous vraiment repasser cette commande en attente ?"
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
                 />
             )}
         </div>
