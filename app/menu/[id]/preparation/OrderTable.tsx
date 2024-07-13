@@ -115,7 +115,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
     };
 
     const sortedOrders = orders.slice().sort((a, b) => {
-        const statusOrder = { 'PENDING': 1, 'IN_PROGRESS': 2, 'COMPLETED': 3 };
+        const statusOrder = { 'IN_PROGRESS': 1, 'PENDING': 2, 'COMPLETED': 3 };
         return statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
     });
 
