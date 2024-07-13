@@ -1,10 +1,6 @@
 'use server';
 
 import prisma from "@/lib/db";
-const WebSocket = require('ws');
-
-// Connect to WebSocket server
-const ws = new WebSocket('wss://ws-foodnfamily.alxfrst.fr');
 
 export async function addCategory(menuId: number, name: string) {
     try {
