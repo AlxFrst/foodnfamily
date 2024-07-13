@@ -27,7 +27,7 @@ interface MenuCardProps {
     socketUrl: string;
 }
 
-export default function MenuCard({ menuId, menuName, categories: initialCategoriesn, socketUrl }: MenuCardProps) {
+export default function MenuCard({ menuId, menuName, categories: initialCategories, socketUrl }: MenuCardProps) {
     const [userName, setUserName] = useState('');
     const [orderItems, setOrderItems] = useState<{ itemId: number; quantity: number }[]>([]);
     const [orderSummary, setOrderSummary] = useState<{ userName: string; items: { name: string; quantity: number }[] } | null>(null);
