@@ -1,2 +1,1 @@
-Stocker l'url des websocket dans le .env pour eviter d'avoir a modifier dans le code
 Proteger la page /menu/[id]/preparation pour que seul les utilisateurs qui ont le cookie du menu puissent modifier le status des commandes 

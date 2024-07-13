@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 import { updateOrderStatus, archiveOrder } from '../actions';
 import ArchiveConfirmationModal from './ArchiveConfirmationModal';
 import ConfirmationModal from './ConfirmationModal';
@@ -31,13 +32,22 @@ interface OrderTableProps {
     socketUrl: string;
 }
 
-export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: OrderTableProps) {
+export default function OrderTable({ menuId, orders: initialOrders, socketUrl }: OrderTableProps) {
     const [orders, setOrders] = useState<Order[]>(initialOrders.filter(order => order.status !== 'ARCHIVED'));
     const [orderToArchive, setOrderToArchive] = useState<Order | null>(null);
     const [orderToConfirm, setOrderToConfirm] = useState<Order | null>(null);
     const detailsRefs = useRef<{ [key: number]: HTMLDetailsElement | null }>({});
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const storedPassword = Cookies.get(`menu_${menuId}_pwd`);
+        console.log(storedPassword);
+        if (storedPassword) {
+            setIsAuthenticated(true);
+        }
+    }, [menuId]);
 
     useEffect(() => {
         const wsUrl = socketUrl;
@@ -62,6 +72,8 @@ export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: 
     }, []);
 
     const handleStatusChange = async (orderId: number, newStatus: string) => {
+        if (!isAuthenticated) return;
+
         try {
             const updatedOrder = await updateOrderStatus(orderId, newStatus);
             setOrders(orders.map(o => o.id === orderId ? { ...o, status: updatedOrder.status } : o));
@@ -79,6 +91,8 @@ export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: 
     };
 
     const handleArchive = async (orderId: number) => {
+        if (!isAuthenticated) return;
+
         try {
             await archiveOrder(orderId);
             setOrders(orders.filter(o => o.id !== orderId));
@@ -123,7 +137,6 @@ export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: 
     };
 
     let completionPercentage = orderStats.totalOrders === 0 ? 0 : (orderStats.completedOrders / orderStats.totalOrders) * 100;
-    // make the number with no decimal point
     completionPercentage = Math.round(completionPercentage * 100) / 100;
 
     return (
@@ -191,28 +204,39 @@ export default function OrderTable({ menuId, orders: initialOrders, socketUrl}: 
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <h3 className="text-lg font-semibold">{order.userName}</h3>
-                                            <button
-                                                onClick={() => {
-                                                    if (order.status === 'COMPLETED') {
-                                                        setOrderToConfirm(order);
-                                                    } else {
-                                                        handleStatusChange(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED');
-                                                    }
-                                                }}
-                                                className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
+                                            {isAuthenticated ? (
+                                                <button
+                                                    onClick={() => {
+                                                        if (order.status === 'COMPLETED') {
+                                                            setOrderToConfirm(order);
+                                                        } else {
+                                                            handleStatusChange(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED');
+                                                        }
+                                                    }}
+                                                    className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
+                                                        order.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-green-500'
+                                                        } text-white text-sm`}
+                                                >
+                                                    {order.status === 'PENDING' ? 'En attente' :
+                                                        order.status === 'IN_PROGRESS' ? 'En cours' : 'Terminé'}
+                                                </button>
+                                            ) : (
+                                                <span className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
                                                     order.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-green-500'
-                                                    } text-white text-sm`}
-                                            >
-                                                {order.status === 'PENDING' ? 'En attente' :
-                                                    order.status === 'IN_PROGRESS' ? 'En cours' : 'Terminé'}
-                                            </button>
+                                                    } text-white text-sm`}>
+                                                    {order.status === 'PENDING' ? 'En attente' :
+                                                        order.status === 'IN_PROGRESS' ? 'En cours' : 'Terminé'}
+                                                </span>
+                                            )}
                                         </div>
-                                        <button
-                                            onClick={() => setOrderToArchive(order)}
-                                            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
-                                        >
-                                            <Trash size={16} />
-                                        </button>
+                                        {isAuthenticated && (
+                                            <button
+                                                onClick={() => setOrderToArchive(order)}
+                                                className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                                            >
+                                                <Trash size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                     <details
                                         ref={(el) => {

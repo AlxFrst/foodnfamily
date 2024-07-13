@@ -40,4 +40,4 @@ function broadcast(data) {
     });
 }
 
-console.log('WebSocket server is running on ws://localhost:8080');
+console.log('WebSocket server is on port 8080');
