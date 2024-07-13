@@ -5,7 +5,7 @@ import { createOrder } from '../actions';
 import OrderSummaryModal from './OrderSummaryModal';
 import QRCodeModal from './QRCodeModal';
 import ShineBorder from "@/components/magicui/shine-border";
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Home, Settings } from 'lucide-react';
 import confetti from "canvas-confetti";
 
 interface Category {
@@ -149,7 +149,6 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
         setTimeout(shoot, 200);
     };
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -191,12 +190,26 @@ export default function MenuCard({ menuId, menuName, categories: initialCategori
 
     return (
         <div className="relative p-4 bg-gray-50 min-h-screen">
-            <button
-                onClick={handleQRCodeClick}
-                className="absolute top-4 right-4 bg-gray-200 p-2 rounded-full shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-                <ClipboardList size={24} />
-            </button>
+            <div className="absolute top-4 right-4 flex space-x-2">
+                <button
+                    onClick={() => window.location.href = '/'}
+                    className="bg-gray-200 p-2 rounded-full shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                    <Home size={24} />
+                </button>
+                <button
+                    onClick={() => window.location.href = `/menu/${menuId}`}
+                    className="bg-gray-200 p-2 rounded-full shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                    <Settings size={24} />
+                </button>
+                <button
+                    onClick={handleQRCodeClick}
+                    className="bg-gray-200 p-2 rounded-full shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                    <ClipboardList size={24} />
+                </button>
+            </div>
 
             <h1 className="text-3xl font-bold mb-6 text-center">{menuName}</h1>
 
