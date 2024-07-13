@@ -73,17 +73,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
         };
     }, []);
 
-    const handleStatusChange = async (orderId: number) => {
-        const order = orders.find(order => order.id === orderId);
-        if (!order) return;
-
-        const newStatus = order.status === 'PENDING' ? 'IN_PROGRESS' : order.status === 'IN_PROGRESS' ? 'COMPLETED' : 'PENDING';
-
-        if (order.status === 'COMPLETED' && newStatus === 'PENDING') {
-            setOrderToConfirm(order);
-            return;
-        }
-
+    const handleStatusChange = async (orderId: number, newStatus: string) => {
         try {
             const updatedOrder = await updateOrderStatus(orderId, newStatus);
             setOrders(orders.map(o => o.id === orderId ? { ...o, status: updatedOrder.status } : o));
@@ -115,7 +105,7 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
 
     const handleConfirm = async () => {
         if (orderToConfirm) {
-            await handleStatusChange(orderToConfirm.id);
+            await handleStatusChange(orderToConfirm.id, 'PENDING');
             setOrderToConfirm(null);
         }
     };
@@ -197,7 +187,13 @@ export default function OrderTable({ menuId, orders: initialOrders }: OrderTable
                                 <div>
                                     <h2 className="text-lg font-semibold">{order.userName}</h2>
                                     <button
-                                        onClick={() => handleStatusChange(order.id)}
+                                        onClick={() => {
+                                            if (order.status === 'COMPLETED') {
+                                                setOrderToConfirm(order);
+                                            } else {
+                                                handleStatusChange(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED');
+                                            }
+                                        }}
                                         className={`mt-1 px-2 py-1 rounded ${order.status === 'PENDING' ? 'bg-yellow-500' :
                                             order.status === 'IN_PROGRESS' ? 'bg-blue-500' : 'bg-green-500'
                                             } text-white text-sm`}
